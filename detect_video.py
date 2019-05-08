@@ -6,6 +6,7 @@
 # Description: Run object detection on a video
 # ========================================================
 
+import ctypes
 import argparse
 import sys
 import os
@@ -73,17 +74,17 @@ def main():
     # effect of loading FlattenConcat plugin into internal TensorRT
     # PluginRegistry data structure. This will be needed when parsing
     # network into UFF, since some operations will need to use this plugin
-    # try:
-    #     ctypes.CDLL(PATHS.get_flatten_concat_plugin_path())
-    # except:
-    #     print(
-    #         "Error: {}\n{}\n{}".format(
-    #             "Could not find {}".format(PATHS.get_flatten_concat_plugin_path()),
-    #             "Make sure you have compiled FlattenConcat custom plugin layer",
-    #             "For more details, check README.md"
-    #         )
-    #     )
-    #     sys.exit(1)
+    try:
+        ctypes.CDLL(PATHS.get_flatten_concat_plugin_path())
+    except:
+        print(
+            "Error: {}\n{}\n{}".format(
+                "Could not find {}".format(PATHS.get_flatten_concat_plugin_path()),
+                "Make sure you have compiled FlattenConcat custom plugin layer",
+                "For more details, check README.md"
+            )
+        )
+        sys.exit(1)
 
     # build engine
     trt_inference_wrapper = inference_utils.TRTInference(args.engine_path, args.model_file,
