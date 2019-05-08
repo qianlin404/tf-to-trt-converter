@@ -164,6 +164,29 @@ class TRTInference(object):
         # And return results
         return detection_out, keepCount_out
 
+    def infer_numpy(self, img):
+        """
+        Infer model on given image in numpy array format
+        Args:
+            img(np.ndarray): an image in numpy array format, expect shape [3, 300, 300], normalized
+
+        Returns:
+            detection_out: detection result
+            keepCount_out: the number of detection
+        """
+        # Copy it into appropriate place into memory
+        # (self.inputs was returned earlier by allocate_buffers())
+        np.copyto(self.inputs[0].host, img.ravel())
+
+        # Fetch output from the model
+        [detection_out, keepCount_out] = common.do_inference(
+            self.context, bindings=self.bindings, inputs=self.inputs,
+            outputs=self.outputs, stream=self.stream)
+
+        # And return results
+        return detection_out, keepCount_out
+
+
     def infer_batch(self, image_paths):
         """Infers model on batch of same sized images resized to fit the model.
 
