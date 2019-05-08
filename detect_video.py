@@ -110,14 +110,14 @@ def main():
         success, frame = cap.read()
     end = datetime.now()
 
-    time_delta = (end-start).total_seconds() * 1000.0
+    time_delta = (end-start).total_seconds()
     fps = cnt / time_delta
 
     print("===============================================================================")
     print("Process time (exclude load model time): {time:.2f}s".format(time=time_delta))
     print("Total #frames: {cnt}".format(cnt=cnt))
     print("Process FPS (exclude load model time): {time:.2f}".format(time=fps))
-    print("Average inference time is: {time:.2f}".format(time=np.mean(inference_time)))
+    print("Average inference time is: {time:.2f}ms".format(time=np.mean(inference_time)))
     print("===============================================================================")
 
 
