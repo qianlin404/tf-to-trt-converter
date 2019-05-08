@@ -81,3 +81,6 @@ def main():
     print("[SSD Mobilenet V2 Converter] Convert succeed, output is saved to {output_path}"
           .format(output_path=args.output_path))
 
+
+if __name__ == '__main__':
+    main()
