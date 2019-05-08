@@ -38,7 +38,7 @@ def parse_commandline_arguments():
     except FileExistsError:
         pass
 
-    model_name = args.input_file.split('/')[-1].split('.')[0]
+    model_name = args.model_file.split('/')[-1].split('.')[0]
     args.engine_path = os.path.join(engine_dir, model_name + ".buf")
 
     return args
