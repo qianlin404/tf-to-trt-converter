@@ -184,11 +184,15 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
         "concat_box_loc",
         op="FlattenConcat_TRT",
         dtype=tf.float32,
+        axis=1,
+        ignoreBatch=0
     )
     concat_box_conf = gs.create_plugin_node(
         "concat_box_conf",
         op="FlattenConcat_TRT",
         dtype=tf.float32,
+        axis=1,
+        ignoreBatch=0
     )
 
     # Create a mapping of namespace names -> plugin nodes.
