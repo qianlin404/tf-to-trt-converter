@@ -107,6 +107,7 @@ def main():
         inference_time.append((end_infer-start_infer).total_seconds()*1000.0)
 
         success, frame = cap.read()
+        frame = preprocess_frame(frame)
     end = datetime.now()
 
     time_delta = (end-start).total_seconds() * 1000.0
