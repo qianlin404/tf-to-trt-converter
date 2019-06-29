@@ -229,7 +229,6 @@ def model_to_uff(model_path, output_uff_path, preprocess_func=ssd_unsupported_no
     """
     dynamic_graph = gs.DynamicGraph(model_path)
     dynamic_graph = preprocess_func(dynamic_graph)
-    dynamic_graph.write_tensorboard("/Users/qianlinliang/Desktop/tmp")
 
     uff.from_tensorflow(
         dynamic_graph.as_graph_def(),
