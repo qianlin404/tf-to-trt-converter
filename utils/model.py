@@ -170,7 +170,7 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
         topK=100,
         keepTopK=100,
         numClasses=91,
-        inputOrder=[0, 2, 1],
+        inputOrder=[1, 0, 2],
         confSigmoid=1,
         isNormalized=1
     )
@@ -199,7 +199,7 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
     namespace_plugin_map = {
         "MultipleGridAnchorGenerator": PriorBox,
         "Postprocessor": NMS,
-        "Preprocessor": Input,
+        "Preprocessor/map": Input,
         "ToFloat": Input,
         "image_tensor": Input,
         "Concatenate": concat_priorbox,
@@ -229,6 +229,7 @@ def model_to_uff(model_path, output_uff_path, preprocess_func=ssd_unsupported_no
     """
     dynamic_graph = gs.DynamicGraph(model_path)
     dynamic_graph = preprocess_func(dynamic_graph)
+    dynamic_graph.write_tensorboard("/Users/qianlinliang/Desktop/tmp")
 
     uff.from_tensorflow(
         dynamic_graph.as_graph_def(),
@@ -290,6 +291,7 @@ def download_file(file_url, file_dest_path, silent=False):
                 sys.stdout.flush()
             sys.stdout.write("\n")
             sys.stdout.flush()
+
 
 def download_model(model_name, silent=False):
     """Downloads model_name from Tensorflow model zoo.
