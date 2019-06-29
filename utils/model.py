@@ -124,7 +124,7 @@ def ssd_unsupported_nodes_to_plugin_nodes(ssd_graph):
     return ssd_graph
 
 
-def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
+def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
     """Makes ssd_graph TensorRT comparible using graphsurgeon.
 
     This function takes ssd_graph, which contains graphsurgeon
@@ -139,13 +139,16 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
 
     Args:
         ssd_graph (gs.DynamicGraph): graph to convert
+        input_shape: input shape in CHW format
     Returns:
         gs.DynamicGraph: UffParser compatible SSD graph
     """
     # Create TRT plugin nodes to replace unsupported ops in Tensorflow graph
-    channels = ModelData.get_input_channels()
-    height = ModelData.get_input_height()
-    width = ModelData.get_input_width()
+    # channels = ModelData.get_input_channels()
+    # height = ModelData.get_input_height()
+    # width = ModelData.get_input_width()
+
+    channels, height, width = input_shape
 
     Input = gs.create_plugin_node(name="Input",
         op="Placeholder",
@@ -201,11 +204,13 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
         "Postprocessor": NMS,
         "Preprocessor/map": Input,
         "ToFloat": Input,
-        "image_tensor": Input,
+        # "image_tensor": Input,
         "Concatenate": concat_priorbox,
         "concat": concat_box_loc,
         "concat_1": concat_box_conf
     }
+    for node in ssd_graph.graph_inputs:
+        namespace_plugin_map[node.name] = Input
 
     # Create a new graph by collapsing namespaces
     ssd_graph.collapse_namespaces(namespace_plugin_map)
@@ -218,17 +223,19 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph):
     return ssd_graph
 
 
-def model_to_uff(model_path, output_uff_path, preprocess_func=ssd_unsupported_nodes_to_plugin_nodes, silent=False):
+def model_to_uff(model_path, output_uff_path, input_shape,
+                 preprocess_func=ssd_unsupported_nodes_to_plugin_nodes, silent=False):
     """Takes frozen .pb graph, converts it to .uff and saves it to file.
 
     Args:
         model_path (str): .pb model path
+        input_shape: input shape in CHW format
         output_uff_path (str): .uff path where the UFF file will be saved
         silent (bool): if True, writes progress messages to stdout
 
     """
     dynamic_graph = gs.DynamicGraph(model_path)
-    dynamic_graph = preprocess_func(dynamic_graph)
+    dynamic_graph = preprocess_func(dynamic_graph, input_shape=input_shape)
 
     uff.from_tensorflow(
         dynamic_graph.as_graph_def(),

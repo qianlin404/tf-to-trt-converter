@@ -37,6 +37,8 @@ def parse_commandline_arguments():
                         help='max TensorRT engine batch size')
     parser.add_argument('-w', '--output_dir', dest='output_dir', default='trt_models',
                         help='sample workspace directory')
+    parser.add_argument("--input_shape", nargs='+', type=int, dest="input_shape",
+                        help="input shape for this model in CHW format")
 
     # Parse arguments passed
     args = parser.parse_args()
@@ -75,9 +77,11 @@ def main():
         )
         sys.exit(1)
 
+    input_shape = (3, 300, 300) if not args.input_shape else args.input_shape
     print("[SSD Mobilenet V2 Converter] Converting {input_file} to UFF format...".format(input_file=args.input_file))
     model_utils.model_to_uff(args.input_file, args.output_path,
-                             preprocess_func=model_utils.ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes)
+                             preprocess_func=model_utils.ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes,
+                             input_shape=input_shape)
     print("[SSD Mobilenet V2 Converter] Convert succeed, output is saved to {output_path}"
           .format(output_path=args.output_path))
 
