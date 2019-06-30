@@ -218,7 +218,11 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
     # If remove_exclusive_dependencies is True, the whole graph will be removed!
     ssd_graph.remove(ssd_graph.graph_outputs, remove_exclusive_dependencies=False)
     # Disconnect the Input node from NMS, as it expects to have only 3 inputs.
-    ssd_graph.find_nodes_by_op("NMS_TRT")[0].input.remove("Input")
+
+    to_remove_nodes = ["Input", "Preprocessor/stack_1"]
+    for node in to_remove_nodes:
+        if node in ssd_graph.find_nodes_by_op("NMS_TRT")[0].input:
+            ssd_graph.find_nodes_by_op("NMS_TRT")[0].input.remove(node)
 
     return ssd_graph
 
