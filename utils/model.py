@@ -224,6 +224,10 @@ def ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
         if node in ssd_graph.find_nodes_by_op("NMS_TRT")[0].input:
             ssd_graph.find_nodes_by_op("NMS_TRT")[0].input.remove(node)
 
+            # For split model part 2
+            if node == "Preprocessor/stack_1":
+                ssd_graph.remove(node)
+
     return ssd_graph
 
 
