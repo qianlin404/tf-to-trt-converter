@@ -338,7 +338,7 @@ def ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
                 ssd_graph.remove(node)
 
     if "image_tensor:0" in ssd_graph.graph_inputs[0].input:
-        ssd_graph.graph_inputs[0].input.remove("image_tensor:0")s
+        ssd_graph.graph_inputs[0].input.remove("image_tensor:0")
 
     return ssd_graph
 
