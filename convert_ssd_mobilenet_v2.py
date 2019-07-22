@@ -39,6 +39,8 @@ def parse_commandline_arguments():
                         help='sample workspace directory')
     parser.add_argument("--input_shape", nargs='+', type=int, dest="input_shape",
                         help="input shape for this model in CHW format")
+    parser.add_argument("--model_name", dest="model_name", type=str, default="ssd_mobilenet_v2_coco",
+                        help="model name, only support ssd mobilenet v1 and v2")
 
     # Parse arguments passed
     args = parser.parse_args()
@@ -79,9 +81,18 @@ def main():
 
     input_shape = (3, 300, 300) if not args.input_shape else args.input_shape
     print("[SSD Mobilenet V2 Converter] Converting {input_file} to UFF format...".format(input_file=args.input_file))
-    model_utils.model_to_uff(args.input_file, args.output_path,
-                             preprocess_func=model_utils.ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes,
-                             input_shape=input_shape)
+
+    if args.model_name == "ssd_mobilenet_v2_coco":
+        model_utils.model_to_uff(args.input_file, args.output_path,
+                                 preprocess_func=model_utils.ssd_mobilenet_v2_unsupported_nodes_to_plugin_nodes,
+                                 input_shape=input_shape)
+    elif args.model_name == "ssd_mobilenet_v1_coco":
+        model_utils.model_to_uff(args.input_file, args.output_path,
+                                 preprocess_func=model_utils.ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes,
+                                 input_shape=input_shape)
+    else:
+        raise ValueError("Got unsupported model: {model_name}".format(model_name=args.model_name))
+
     print("[SSD Mobilenet V2 Converter] Convert succeed, output is saved to {output_path}"
           .format(output_path=args.output_path))
 
