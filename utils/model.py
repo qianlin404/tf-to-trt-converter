@@ -343,6 +343,8 @@ def ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
             if node == "Preprocessor/stack_1":
                 ssd_graph.remove(node)
 
+    ssd_graph.find_nodes_by_path["Input"][0].input.remove("image_tensor:0")
+
     return ssd_graph
 
 
