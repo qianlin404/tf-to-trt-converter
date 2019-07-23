@@ -280,7 +280,7 @@ def ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
         topK=100,
         keepTopK=100,
         numClasses=91,
-        inputOrder=[1, 0, 2],
+        inputOrder=[0, 2, 1],
         confSigmoid=1,
         isNormalized=1
     )
