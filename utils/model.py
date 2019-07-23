@@ -305,6 +305,14 @@ def ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
         ignoreBatch=0
     )
 
+    const = tf.NodeDef(name="Const", op="Const",
+                       attr={"dtype": tf.AttrValue(type=1),
+                             "value": tf.AttrValue(tensor=tf.make_tensor_proto([1, 1], dtype=tf.float32))})
+
+    death_list = ["strided_slice_7"]
+    ssd_graph.remove(ssd_graph.find_nodes_by_path(death_list))
+    ssd_graph.find_nodes_by_path("Shape_6")[0].input.remove("Preprocessor/sub")
+
     # Create a mapping of namespace names -> plugin nodes.
     namespace_plugin_map = {
         "MultipleGridAnchorGenerator": concat_priorbox,
@@ -313,6 +321,7 @@ def ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
         "ToFloat": Input,
         # "image_tensor": Input,
         "strided_slice_6": PriorBox,
+        "Shape_6": const,
         "Concatenate": concat_priorbox,
         "concat": concat_box_loc,
         "concat_1": concat_box_conf
@@ -327,18 +336,12 @@ def ssd_mobilenet_v1_unsupported_nodes_to_plugin_nodes(ssd_graph, input_shape):
     ssd_graph.remove(ssd_graph.graph_outputs, remove_exclusive_dependencies=False)
     # Disconnect the Input node from NMS, as it expects to have only 3 inputs.
 
-    death_list = ["Shape_6", "strided_slice_7"]
-    ssd_graph.remove(ssd_graph.find_nodes_by_path(death_list))
-
     to_remove_nodes = ["Input", "Preprocessor/stack_1"]
     for node in to_remove_nodes:
         if node in ssd_graph.find_nodes_by_op("NMS_TRT")[0].input:
             ssd_graph.find_nodes_by_op("NMS_TRT")[0].input.remove(node)
             if node == "Preprocessor/stack_1":
                 ssd_graph.remove(node)
-
-    if "image_tensor:0" in ssd_graph.graph_inputs[0].input:
-        ssd_graph.graph_inputs[0].input.remove("image_tensor:0")
 
     return ssd_graph
 
